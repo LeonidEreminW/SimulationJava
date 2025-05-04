@@ -1,6 +1,6 @@
 public class Main {
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) {
         Simulation simulation = new Simulation();
-        simulation.test();
+        simulation.startSimulation();
     }
 }
