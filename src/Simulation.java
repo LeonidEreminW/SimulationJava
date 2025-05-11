@@ -37,6 +37,7 @@ public class Simulation {
 
 
     private void createWorld() {
+
         for (int x = 0; x < worldWidth; x++) {
             for (int y = 0; y < worldHeight; y++) {
 //                System.out.println("x=" + x + ", y=" + y);

@@ -10,5 +10,7 @@ public class Herbivore extends AbstractCreature{
     }
     public Herbivore() {
         setImg("\uD83D\uDC07");
+        setSpeed(1);
+        setHealth(3);
     }
 }

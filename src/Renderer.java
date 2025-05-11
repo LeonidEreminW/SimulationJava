@@ -9,10 +9,12 @@ public class Renderer {
                 var entity = world.get(new Coordinates(i,j));
                 if (entity != null) {
                     System.out.printf(" %s ", entity.getImg());
-                }else{System.out.print(" - ");}
+                }else{System.out.print(" \u2B1B ");}
 
             }
         }
+        System.out.println("\n");
+        System.out.println("- - - - - - - - - - - - - -");
 
 
     }
