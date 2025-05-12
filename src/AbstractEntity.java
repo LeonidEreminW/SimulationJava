@@ -1,6 +1,7 @@
 public abstract class AbstractEntity {
     private String img;
     private Coordinates position;
+    public EntityType type;
     public String getImg() {
         return img;
     }

@@ -6,6 +6,7 @@ public class Main {
         System.out.println("\uD83C\uDF33 — дерево");
         System.out.println("\u2B1B — коричневый квадрат");
         Simulation simulation = new Simulation();
-        simulation.startSimulation();
+//        simulation.startSimulation();
+        simulation.Test();
     }
 }

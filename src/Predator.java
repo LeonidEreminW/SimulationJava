@@ -4,6 +4,8 @@ public class Predator extends AbstractCreature{
 
     }
     public Predator() {
+
         setImg("\uD83D\uDC07");
+        type = EntityType.PREDATOR;
     }
 }

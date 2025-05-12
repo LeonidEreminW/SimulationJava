@@ -12,5 +12,6 @@ public class Herbivore extends AbstractCreature{
         setImg("\uD83D\uDC07");
         setSpeed(1);
         setHealth(3);
+        type = EntityType.HERBIVORE;
     }
 }
