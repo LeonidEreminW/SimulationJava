@@ -1,3 +1,5 @@
+import java.util.Queue;
+
 public interface IMovement<AbstractEntity,Coordinates>{
-    void execute(AbstractEntity abstractEntity, Coordinates coordinates);
+    void move(AbstractEntity abstractEntity, Coordinates coordinates);
 }

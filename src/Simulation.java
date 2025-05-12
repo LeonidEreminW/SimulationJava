@@ -1,23 +1,19 @@
-import javax.swing.text.html.parser.Entity;
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 public class Simulation {
     Map<Coordinates,AbstractEntity> worldMap = new HashMap<Coordinates,AbstractEntity>();
     private int worldHeight = 5;
     private int worldWidth = 5;
     private boolean isPaused = true;
-    private int simulationInterval = 3;
+    private int simulationInterval =1;
     private ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
     private ArrayList<AbstractCreature> creaturePool = new ArrayList<>();
 
     public void startSimulation() {
         createWorld();
         spawnCreature(new Coordinates(0,0));
-        spawnRandomEnviroment();
-        spawnEntity(new Grass(), new Coordinates(3,4));
+        spawnRandomEnviroment(3,2,1);
         isPaused = false;
         simulationCircle();
 
@@ -50,32 +46,21 @@ public class Simulation {
             }
         }
     }
-    private void spawnRandomEnviroment(){
+    private void spawnRandomEnviroment(int trees, int rocks, int grass){
 
-        worldMap.put(new Coordinates(0,1),new Rock());
-        worldMap.put(new Coordinates(0,2),new Rock());
-
-        worldMap.put(new Coordinates(4,0),new Rock());
-        worldMap.put(new Coordinates(4,1),new Rock());
-        worldMap.put(new Coordinates(4,2),new Rock());
+        for(int i = 0; i < trees; i++){
+            spawnRandomEntity(new Tree());
+        }for(int i = 0; i < rocks; i++){
+            spawnRandomEntity(new Rock());
+        }for(int i = 0; i < grass; i++){
+            spawnRandomEntity(new Grass());
+        }
 //        worldMap.put(new Coordinates(4,1),new Tree());
 //        worldMap.put(new Coordinates(0,0),new Tree());
 //        worldMap.put(new Coordinates(3,3),new Tree());
     }
     private Renderer renderer = new Renderer();
-    public void test() throws InterruptedException {
-        createWorld();
-        var testHerb = new Herbivore();
-        setupCreature(testHerb,this::moveEntity);
-        spawnEntity(testHerb,new Coordinates(2,2));
-        renderer.renderWorld(worldMap,worldWidth,worldHeight);
-        Thread.sleep(2000);
-        testHerb.makeMove();
-        renderer.renderWorld(worldMap,worldWidth,worldHeight);
 
-
-
-    }
     private void spawnEntity(AbstractEntity entity, Coordinates coordinates) {
         entity.setPosition(coordinates);
         worldMap.put(coordinates,entity);
@@ -86,18 +71,21 @@ public class Simulation {
         worldMap.put(previousPosition,null);
         worldMap.put(coordinates,entity);
     }
-    private void setupCreature(AbstractCreature creature, IMovement<AbstractEntity,Coordinates>action) {
-        creature.setAction(action);
+    private void setupCreature(AbstractCreature creature, IMovement<AbstractEntity,Coordinates>movementAction,IFind<Coordinates,EntityType>findAction) {
+        creature.setMoveMethod(movementAction);
+        creature.setFindMethod(findAction);
     }
     private void spawnCreature(Coordinates coordinates){
         var testHerb = new Herbivore();
-        setupCreature(testHerb,this::moveEntity);
+        setupCreature(testHerb,this::moveEntity,this::BFS);
+        testHerb.setHunt(this::destroyGrass);
         creaturePool.add(testHerb);
         spawnEntity(testHerb,coordinates);
     }
-    public void BFS(Coordinates start, EntityType type) {
+    public Queue<Coordinates> BFS(Coordinates start, EntityType type) {
         int[][] distance = new int[worldHeight+2][worldWidth+2];
         var from = new HashMap<Coordinates,Coordinates>();
+        var endPoint = new Coordinates(0,0);
 
         for (int i = 0; i < worldHeight+2; i++) {
             for (int j = 0; j < worldWidth+2; j++) {
@@ -106,6 +94,9 @@ public class Simulation {
                 }
                 else {
                     var temp = worldMap.get(new Coordinates(i-1,j-1));
+                    if (temp != null && temp.type == type){
+                        endPoint = new Coordinates(i-1,j-1);
+                    }
 //                    if(temp != null){
 //                        System.out.println(temp.getClass().getName()+" "+ (new Coordinates(i,j).x) + " " + (new Coordinates(i,j).y) );
 //                    }else{System.out.println("null" + " "+ (new Coordinates(i,j).x) + " " + (new Coordinates(i,j).y) );}
@@ -120,9 +111,10 @@ public class Simulation {
         }
 
         distance[start.y+1][start.x+1] = 0;
-        print2DArray(distance);
+//        print2DArray(distance);
         Queue<Coordinates> queue = new LinkedList<>();
         queue.add(start);
+        from.put(start,null);
 
         while (!queue.isEmpty()) {
             Coordinates current = queue.remove();
@@ -131,8 +123,10 @@ public class Simulation {
                 var nextY = current.y+1;
                 if(distance[nextX][nextY] == Integer.MAX_VALUE){
                     distance[nextX][nextY] = distance[current.x+1][current.y+1]+1;
-                    System.out.println(distance[nextX][nextY]);
-                    queue.add(new Coordinates(nextX-1,nextY-1));
+//                    System.out.println(distance[nextX][nextY]);
+                    var tempCoordinate = new Coordinates(nextX-1,nextY-1);
+                    queue.add(tempCoordinate);
+                    from.put(tempCoordinate,current);
                 }
             }
 
@@ -141,18 +135,52 @@ public class Simulation {
                 var nextY = current.y+i+1;
                 if(distance[nextX][nextY] == Integer.MAX_VALUE){
                     distance[nextX][nextY] = distance[current.x+1][current.y+1]+1;
-                    System.out.println(distance[nextX][nextY]);
-                    queue.add(new Coordinates(nextX-1,nextY-1));
+//                    System.out.println(distance[nextX][nextY]);
+                    var tempCoordinate = new Coordinates(nextX-1,nextY-1);
+                    queue.add(tempCoordinate);
+                    from.put(tempCoordinate,current);
                 }
             }
 
 
         }
-        print2DArray(distance);
+        var path = getPath(from,endPoint);
+//        print2DArray(distance);
+//        printPath(path);
+        return path;
 
 
 
     }
+
+    public Deque<Coordinates> getPath(HashMap<Coordinates,Coordinates> from, Coordinates end) {
+        var path = new LinkedList<Coordinates>();
+        path.add(end);
+        var startPath = end;
+        while  (startPath!= null){
+            startPath = from.get(startPath);
+            path.add(startPath);
+        }
+        path.removeLast();
+        path.removeLast();
+        return path.reversed();
+    }
+
+    public void destroyGrass(Coordinates coordinates) {
+        worldMap.put(coordinates,null);
+        System.out.println("Destroying grass");
+        spawnRandomEntity(new Grass());
+    }
+    private void spawnRandomEntity(AbstractEntity entity) {
+        var coordinates = new Coordinates(ThreadLocalRandom.current().nextInt(0, worldHeight),ThreadLocalRandom.current().nextInt(0, worldWidth));
+        System.out.println("Spawning grass"+coordinates.x + " " + coordinates.y);
+        if (worldMap.get(coordinates)==null) {
+            spawnEntity(entity,coordinates);
+        }else{
+            spawnRandomEntity(entity);}
+
+    }
+
     public void print2DArray(int[][] array) {
         for (int i = 0; i < array.length; i++) {
             for (int j = 0; j < array[i].length; j++) {
@@ -162,9 +190,20 @@ public class Simulation {
         }
         System.out.println("\n");
     }
+    public static void printPath(Queue<Coordinates> queue) {
+        System.out.println("Содержимое очереди:");
+        for (var element : queue) {
+            if(element != null) {
+                System.out.println("x " + element.x + "  y " + element.y);
+            }
+
+        }
+    }
+
+
     public void Test(){
         createWorld();
-        spawnRandomEnviroment();
+        spawnRandomEnviroment(3,2,1);
         spawnEntity(new Grass(), new Coordinates(3,4));
         renderer.renderWorld(worldMap,worldWidth,worldHeight);
         BFS(new Coordinates(0,0),EntityType.GRASS);
