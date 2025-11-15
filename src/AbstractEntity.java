@@ -5,6 +5,9 @@ public abstract class AbstractEntity {
     public String getImg() {
         return img;
     }
+    public EntityType getType(){
+        return type;
+    }
     public void setImg(String img) {
         this.img = img;
     }
