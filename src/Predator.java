@@ -1,4 +1,7 @@
 public class Predator extends AbstractCreature{
+    private IHunt<Coordinates> hunt;
+        int damage = 0;
+
     @Override
     public void makeMove() {
         var pathToPrey = findPrey.find(getPosition(),EntityType.HERBIVORE);
@@ -7,7 +10,7 @@ public class Predator extends AbstractCreature{
             speedPoints-=1;
             if (pathToPrey.size()==1){
                 var cordinate = pathToPrey.remove();
-                hunt.hunt(cordinate);
+                hunt.hunt(cordinate,damage);
                 break;
             } else {
                 move.move(this,pathToPrey.remove());
@@ -15,11 +18,15 @@ public class Predator extends AbstractCreature{
 
         }
     }
+    public void setHuntMethod(IHunt<Coordinates> action){
+        hunt = action;
+    }
     public Predator() {
 
         setImg("\uD83D\uDC05");
-        setSpeed(1);
+        setSpeed(2);
         setHealth(3);
+        damage = 1;
         type = EntityType.PREDATOR;
     }
     

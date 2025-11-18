@@ -1,3 +1,3 @@
-public interface IHunt<coordinates> {
-    void hunt(Coordinates preyCoordinates);
+public interface IHunt<Сoordinates> {
+    void hunt(Coordinates preyCoordinates,int damage);
 }
