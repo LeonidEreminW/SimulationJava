@@ -3,13 +3,15 @@ import java.util.concurrent.*;
 
 public class Simulation {
     Map<Coordinates,AbstractEntity> worldMap = new HashMap<Coordinates,AbstractEntity>();
-    private int worldHeight = 7;
-    private int worldWidth = 7;
+    private final int worldHeight = 7;
+    private final int worldWidth = 7;
     private boolean isPaused = true;
-    private int simulationInterval =2;
-    private ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-    private ArrayList<AbstractCreature> creaturePool = new ArrayList<>();
+    private final int simulationInterval =2;
+    private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+    private final CopyOnWriteArrayList<AbstractCreature> creaturePool = new CopyOnWriteArrayList<>();
     private int simulationStep = 0;
+    private final Renderer renderer = new Renderer();
+
 
     public void startSimulation() {
         createWorld();
@@ -32,17 +34,28 @@ public class Simulation {
         isPaused = false;
     }
     public void nextTurn() {
-        try {
-            simulationStep++;
-            System.out.println("=== Step " + simulationStep + " ===");
-            for (var item : creaturePool) {
-               item.makeMove();
-            }
+        Iterator<AbstractCreature> creatureIterator = creaturePool.iterator();
+        if (creaturePool.stream().noneMatch(item->item.type == EntityType.HERBIVORE)) {
             renderer.renderWorld(worldMap,worldWidth,worldHeight);
-        } catch (Throwable t) {
-            System.err.println("Exception during simulation step: " + t);
-            t.printStackTrace();
+            isPaused = true;
+            scheduler.shutdown();
         }
+        if (!isPaused) {
+            try {
+                simulationStep++;
+                System.out.println("=== Step " + simulationStep + " ===");
+
+                while (creatureIterator.hasNext()) {
+                    creatureIterator.next().makeMove();
+                }
+
+                renderer.renderWorld(worldMap,worldWidth,worldHeight);
+            } catch (Throwable t) {
+                System.err.println("Exception during simulation step: " + t);
+                t.printStackTrace();
+            }
+        }
+
     }
 
 
@@ -71,7 +84,6 @@ public class Simulation {
             spawnRandomEntity(new Grass());
         }
     }
-    private Renderer renderer = new Renderer();
 
     private void spawnEntity(AbstractEntity entity, Coordinates coordinates) {
         entity.setPosition(coordinates);
@@ -176,7 +188,6 @@ public class Simulation {
     }
     private void spawnRandomEntity(AbstractEntity entity) {
         var coordinates = new Coordinates(ThreadLocalRandom.current().nextInt(0, worldWidth), ThreadLocalRandom.current().nextInt(0, worldHeight));
-        // System.out.println("Spawning "+entity.getType()+" "+coordinates.x + " " + coordinates.y);
         if (worldMap.get(coordinates)==null) {
             System.out.println(worldMap.get(coordinates)==null);
             spawnEntity(entity,coordinates);
@@ -192,7 +203,7 @@ public class Simulation {
     }
     public void provideDamage(Coordinates preyCoordinates, int damage) {
         var entity = worldMap.get(preyCoordinates);
-        if(entity != null && entity instanceof AbstractCreature){
+        if(entity instanceof AbstractCreature){
             ((AbstractCreature) entity).takeDamageBehavior(damage);
         }
     }

@@ -6,14 +6,12 @@ public abstract class AbstractCreature  extends AbstractEntity{
     protected IOnDeath triggerOnDeath;
     protected void takeDamageBehavior(int damage){
         health -= damage;
-        // System.out.println(getImg() + " took " + damage + " damage, health now: " + health);
         if(health <= 0){
             triggerOnDeath.onDeath();
         }
     }
     protected int speed;
     protected int health;
-    protected int turns = 1;
     public void setMoveMethod(IMovement<AbstractEntity,Coordinates> action) {
         move = action;
     }
