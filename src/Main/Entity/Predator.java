@@ -1,10 +1,16 @@
+package Main.Entity;
+
+import Main.Coordinates;
+import Main.EntityType;
+import Main.Interfaces.IHunt;
+
 public class Predator extends AbstractCreature{
     private IHunt<Coordinates> hunt;
         int damage = 0;
 
     @Override
     public void makeMove() {
-        var pathToPrey = findPrey.find(getPosition(),EntityType.HERBIVORE);
+        var pathToPrey = findPrey.find(getPosition(), EntityType.HERBIVORE);
         var speedPoints = speed;
         while (speedPoints>0 && pathToPrey!=null && !pathToPrey.isEmpty()) {
             speedPoints-=1;

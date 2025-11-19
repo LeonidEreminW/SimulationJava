@@ -1,17 +1,26 @@
+package Main.Entity;
+
+import Main.*;
+import Main.Interfaces.IFind;
+import Main.Interfaces.IHunt;
+import Main.Interfaces.IMovement;
+import Main.Interfaces.IOnDeath;
+
 public abstract class AbstractCreature  extends AbstractEntity{
     public abstract void makeMove();
-    protected IMovement<AbstractEntity,Coordinates> move;
-    protected IFind<Coordinates,EntityType> findPrey;
+    protected IMovement<AbstractEntity, Coordinates> move;
+    protected IFind<Coordinates, EntityType> findPrey;
     protected IHunt<Coordinates> hunt;
     protected IOnDeath triggerOnDeath;
-    protected void takeDamageBehavior(int damage){
+    protected int speed;
+    protected int health;
+    public void takeDamageBehavior(int damage){
         health -= damage;
         if(health <= 0){
             triggerOnDeath.onDeath();
         }
     }
-    protected int speed;
-    protected int health;
+
     public void setMoveMethod(IMovement<AbstractEntity,Coordinates> action) {
         move = action;
     }

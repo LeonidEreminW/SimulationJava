@@ -1,3 +1,5 @@
+package Main.Interfaces;
+
 import java.util.Queue;
 
 public interface IFind<Coordinates,EntityType> {

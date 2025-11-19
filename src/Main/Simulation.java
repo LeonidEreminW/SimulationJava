@@ -1,3 +1,9 @@
+package Main;
+
+import Main.Entity.*;
+import Main.Interfaces.IFind;
+import Main.Interfaces.IMovement;
+
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.*;
@@ -42,6 +48,9 @@ public class Simulation {
     }
     public void pauseSimulation() {
         isPaused = !isPaused;
+        if (isPaused) {
+            System.out.println("Paused");
+        }
     }
     public void nextTurn() {
         Iterator<AbstractCreature> creatureIterator = creaturePool.iterator();
@@ -49,6 +58,7 @@ public class Simulation {
             renderer.renderWorld(worldMap.getMap(),worldWidth,worldHeight);
             isPaused = true;
             scheduler.shutdown();
+            schedulerForPause.shutdown();
         }
         if (!isPaused) {
             try {
@@ -94,10 +104,9 @@ public class Simulation {
         worldMap.putEntity(coordinates,entity);
 
     }
-    private void setupCreature(AbstractCreature creature, IMovement<AbstractEntity,Coordinates>movementAction,IFind<Coordinates,EntityType>findAction) {
+    private void setupCreature(AbstractCreature creature, IMovement<AbstractEntity,Coordinates> movementAction, IFind<Coordinates,EntityType> findAction) {
         creature.setMoveMethod(movementAction);
         creature.setFindMethod(findAction);
-        // register on-death callback so Simulation can clean up when creature dies
         creature.setOnDeathMethod(() -> onDeathHandler(creature));
         if(creature instanceof Herbivore){
             ((Herbivore) creature).setEatMethod(this::destroyGrass);
@@ -147,7 +156,7 @@ public class Simulation {
         var position = creature.getPosition();
         creaturePool.remove(creature);
         worldMap.putEntity(position,null);
-        System.out.println(creature.getType()+" died at "+position.x+" "+position.y);
+//        System.out.println(creature.getType()+" died at "+position.x+" "+position.y);
     }
     public void provideDamage(Coordinates preyCoordinates, int damage) {
         var entity = worldMap.getEntity(preyCoordinates);

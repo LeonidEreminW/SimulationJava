@@ -1,16 +1,19 @@
+package Main;
+
+import Main.Entity.AbstractEntity;
+
 import java.util.HashMap;
 import java.util.Map;
 
 public class WorldMap {
     private final int worldHeight;
     private final int worldWidth;
-    private final Map<Coordinates,AbstractEntity> map = new HashMap<Coordinates,AbstractEntity>();
+    private final Map<Coordinates, AbstractEntity> map = new HashMap<Coordinates,AbstractEntity>();
     private void createWorld() {
 
         for (int y = 0; y < worldHeight; y++) {
             for (int x = 0; x < worldWidth; x++) {
-//                System.out.println("x=" + x + ", y=" + y);
-                map.put(new Coordinates(x,y),null);
+                 map.put(new Coordinates(x,y),null);
             }
         }
     }

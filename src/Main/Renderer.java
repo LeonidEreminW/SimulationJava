@@ -1,8 +1,12 @@
+package Main;
+
+import Main.Entity.AbstractEntity;
+
 import java.util.Map;
 
 public class Renderer {
 
-    public void renderWorld(Map<Coordinates,AbstractEntity> world,int width,int height) {
+    public void renderWorld(Map<Coordinates, AbstractEntity> world, int width, int height) {
         for (int i = 0; i < width; i++) {
             System.out.println();
             for (int j = 0; j < height; j++) {

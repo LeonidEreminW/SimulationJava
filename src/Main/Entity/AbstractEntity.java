@@ -1,3 +1,8 @@
+package Main.Entity;
+
+import Main.Coordinates;
+import Main.EntityType;
+
 public abstract class AbstractEntity {
     private String img;
     private Coordinates position;

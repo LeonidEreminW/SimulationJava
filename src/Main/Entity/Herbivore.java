@@ -1,8 +1,14 @@
+package Main.Entity;
+
+import Main.Coordinates;
+import Main.EntityType;
+import Main.Interfaces.IEat;
+
 public class Herbivore extends AbstractCreature{
     private IEat<Coordinates> eat;
     @Override
     public void makeMove() {
-        var pathToPrey = findPrey.find(getPosition(),EntityType.GRASS);
+        var pathToPrey = findPrey.find(getPosition(), EntityType.GRASS);
         var speedPoints = speed;
         while (speedPoints>0 && pathToPrey!=null && !pathToPrey.isEmpty()) {
             speedPoints-=1;
