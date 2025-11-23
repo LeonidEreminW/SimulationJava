@@ -55,7 +55,6 @@ public class BreadthFirstSearch {
             path.addFirst(cur);
             cur = from.get(cur);
         }
-        // first element is start position; remove it so queue contains steps to move
         if (!path.isEmpty()) path.removeFirst();
         return path;
     }
